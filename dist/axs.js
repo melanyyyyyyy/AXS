@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const telegraf_1 = require("telegraf");
 require("dotenv/config");
+const telegraf_1 = require("telegraf");
 const bot = new telegraf_1.Telegraf(process.env.BOT_TOKEN);
 let savedPrice = 2.54;
 let userId = undefined;
@@ -13,8 +13,9 @@ async function getAxs() {
             }
         });
         if (!response.ok) {
-            if (userId)
+            if (userId) {
                 await bot.telegram.sendMessage(userId, `Error http: ${response.status}`);
+            }
             return;
         }
         const data = await response.json();
@@ -22,31 +23,39 @@ async function getAxs() {
     }
     catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        if (userId)
+        if (userId) {
             await bot.telegram.sendMessage(userId, msg);
+        }
     }
 }
-setInterval(async () => {
-    const actualPrice = await getAxs();
-    console.log(actualPrice);
-    if (actualPrice !== undefined) {
-        if (actualPrice > savedPrice) {
-            if (userId)
-                bot.telegram.sendMessage(userId, `Subió ${actualPrice}`);
-            savedPrice = actualPrice;
+function startPriceWatcher(userId) {
+    setInterval(async () => {
+        const actualPrice = await getAxs();
+        if (actualPrice !== undefined) {
+            if (actualPrice > savedPrice) {
+                if (userId)
+                    bot.telegram.sendMessage(userId, `Subió a ${actualPrice}`);
+                savedPrice = actualPrice;
+            }
+            else if (actualPrice < savedPrice) {
+                if (userId)
+                    bot.telegram.sendMessage(userId, `Bajó a ${actualPrice}`);
+                savedPrice = actualPrice;
+            }
+            else {
+                if (userId)
+                    bot.telegram.sendMessage(userId, `Se mantiene en ${actualPrice}`);
+            }
         }
-        else if (actualPrice < savedPrice) {
-            if (userId)
-                bot.telegram.sendMessage(userId, `Bajó ${actualPrice}`);
-            savedPrice = actualPrice;
-        }
-    }
-}, 360000);
+    }, 10000);
+}
 bot.start((ctx) => {
     userId = ctx.chat.id;
-    ctx.reply(`Bienvenido ${ctx.from.first_name}`);
+    ctx.reply(`Bienvenido ${ctx.from.first_name}!`);
+    startPriceWatcher(userId);
 });
 bot.command("price", async (ctx) => {
+    userId = ctx.chat.id;
     const actualPrice = await getAxs();
     if (actualPrice !== savedPrice)
         savedPrice = actualPrice;
