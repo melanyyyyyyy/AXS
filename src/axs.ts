@@ -6,6 +6,8 @@ const bot = new Telegraf(process.env.BOT_TOKEN!);
 let savedPrice: number = 2.54;
 let userId: number | undefined = undefined;
 
+let intervalActive = false;
+
 async function getAxs() {
     try {
         const response = await fetch(
@@ -36,6 +38,8 @@ async function getAxs() {
 }
 
 function startPriceWatcher(userId: number) {
+    if(intervalActive) return;
+    intervalActive = true;
 
     setInterval(async () => {
 

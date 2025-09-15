@@ -5,6 +5,7 @@ const telegraf_1 = require("telegraf");
 const bot = new telegraf_1.Telegraf(process.env.BOT_TOKEN);
 let savedPrice = 2.54;
 let userId = undefined;
+let intervalActive = false;
 async function getAxs() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=axie-infinity&vs_currencies=usd', {
@@ -29,6 +30,9 @@ async function getAxs() {
     }
 }
 function startPriceWatcher(userId) {
+    if (intervalActive)
+        return;
+    intervalActive = true;
     setInterval(async () => {
         const actualPrice = await getAxs();
         if (actualPrice !== undefined) {
