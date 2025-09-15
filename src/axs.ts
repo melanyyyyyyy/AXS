@@ -52,7 +52,7 @@ function startPriceWatcher(userId: number) {
                 if (userId) bot.telegram.sendMessage(userId, `Se mantiene en ${actualPrice}`);
             }
         }
-    }, 10_000);
+    }, 300_000);
 }
 
 bot.start((ctx) => {
