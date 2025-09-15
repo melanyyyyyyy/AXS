@@ -47,7 +47,7 @@ function startPriceWatcher(userId) {
                     bot.telegram.sendMessage(userId, `Se mantiene en ${actualPrice}`);
             }
         }
-    }, 10000);
+    }, 300000);
 }
 bot.start((ctx) => {
     userId = ctx.chat.id;
