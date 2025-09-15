@@ -39,16 +39,16 @@ function startPriceWatcher() {
         const actualPrice = await getAxs();
         console.log(actualPrice);
 
-        if (actualPrice !== undefined) {
-            if (actualPrice > savedPrice) {
-                await bot.telegram.sendMessage(userId, `📈 Subió a ${actualPrice}`);
-                savedPrice = actualPrice;
-            } else if (actualPrice < savedPrice) {
-                await bot.telegram.sendMessage(userId, `📉 Bajó a ${actualPrice}`);
-                savedPrice = actualPrice;
-            }
-        }
-    }, 360_000); // 6 minutos
+  if (actualPrice !== undefined) {
+    if (actualPrice > savedPrice) {
+        if(userId) bot.telegram.sendMessage(userId, `Subió ${actualPrice}`)
+        savedPrice = actualPrice;
+    } else if (actualPrice < savedPrice) {
+        if(userId) bot.telegram.sendMessage(userId, `Bajó ${actualPrice}`)
+        savedPrice = actualPrice;
+    }
+  }
+}, 60_000);
 }
 
 bot.start((ctx) => {
